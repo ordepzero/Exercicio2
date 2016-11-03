@@ -29,7 +29,24 @@ def show_matrix(matrix):
                 print(0, end="")
             cont = cont + 1
         print()
-        
+    
+def convert_matrix(matrix):
+    cont = 0
+    new_matrix = []
+    for x in range(10):
+        for y in range(10):
+            if(matrix[cont] > 0.5):
+                new_matrix.append(1)
+            else:
+                new_matrix.append(0)
+            cont = cont + 1
+    return new_matrix
+      
+def mean_square_error(outputs, desireds):
+    result = sum([ ((output-desired)*(output-desired))/2 for output,desired in zip(outputs, desireds)])
+    return result/len(outputs)
+    
+    
 if __name__ == "__main__":
     
     matrix = []
@@ -38,8 +55,7 @@ if __name__ == "__main__":
     for x in range(10):
         for y in range(10):
             matrix.append(create_identity_matrix(x,y))
-    
-    #matrix = [matrix]
+
 
     train_data = ClassificationDataSet(100, 100,nb_classes=100)#TAMANHO DA ENTRADA, NUMERO DE CLASSES
     test_data  = ClassificationDataSet(100, 100,nb_classes=100)
@@ -74,12 +90,21 @@ if __name__ == "__main__":
     
     network.sortModules()
     
-    trainer = BackpropTrainer( network, dataset=train_data, momentum=0.5, verbose=True, weightdecay=0.25)
+    trainer = BackpropTrainer( network, dataset=train_data, momentum=0.25, verbose=True, weightdecay=0.25)
     
-    for i in range(1):
-        trainer.trainEpochs( 300)
-    
-    
+    cont = 0
+    for i in range(400):
+        trainer.train()
+        outputs = (network.activate(matrix)) 
+        
+        error = mean_square_error(outputs, matrix)
+        cont = cont + 1
+                
+        new_matrix = convert_matrix(outputs)
+        if(new_matrix == matrix):
+            print("IGUAL")
+            break
+    print(error, cont)
     result = (network.activate(matrix)) 
     
     show_matrix(result)
